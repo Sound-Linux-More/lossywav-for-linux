@@ -1,3 +1,17 @@
+PROJECT = lossywav
+COMMON_CXXFLAGS = -std=c++11 -O2 -pipe
+DEFINES = -DHAVE_STD_CHRONO_STEADY_CLOCK_NOW -DHAVE_SETPRIORITY -DHAVE_STAT -DHAVE_CHMOD -DHAVE_NANOSLEEP
+AR = ar
+LDFLAGS = -s
+
+CXXFLAGS = ${COMMON_CXXFLAGS} ${DEFINES}
+ifeq ($(shell uname --machine), x86_64)
+    CXXFLAGS += -fPIC
+endif
+ifeq ($(shell uname --machine), aarch64)
+    CXXFLAGS += -fPIC
+endif
+
 HEADERS = version.h \
           units/fftw_interface.h \
           units/nComplex.h \
@@ -32,22 +46,16 @@ OBJS = units/fftw_interface.o \
 
 OBJB = lossyWAV.o
 
-COMMON_CXXFLAGS = -std=c++11 -O2 -pipe
-DEFINES = -DHAVE_STD_CHRONO_STEADY_CLOCK_NOW -DHAVE_SETPRIORITY -DHAVE_STAT -DHAVE_CHMOD -DHAVE_NANOSLEEP
-LDFLAGS = -s
-
-
-all: prep $(OBJS) $(OBJB) link
-
-prep:
-	$(eval override CXXFLAGS = ${COMMON_CXXFLAGS} ${CXXFLAGS} ${DEFINES})
+all: $(OBJS) $(OBJB) link
 
 *.o: ${@:.o=.cpp} $(HEADERS)
 	${CXX:-g++} -c ${@:.o=.cpp} -o ${@} ${CXXFLAGS}
 
 link: $(OBJS) $(OBJB)
-	${CXX} -shared ${OBJS} -Wl,-soname,liblossywav.so.1 -o liblossywav.so.1 ${LDFLAGS}
-	${CXX} liblossywav.so.1 ${OBJB} -o lossywav ${LDFLAGS}
+	${AR} crs lib${PROJECT}.a ${OBJS}
+	${CXX} -shared ${OBJS} -Wl,-soname,lib${PROJECT}.so.1 -o lib${PROJECT}.so.1 ${LDFLAGS}
+	${CXX} ${OBJB} lib${PROJECT}.so.1 -o ${PROJECT} ${LDFLAGS}
+	${CXX} ${OBJB} lib${PROJECT}.a -o ${PROJECT}-static ${LDFLAGS}
 
 clean:
-	-rm -f $(OBJS) $(OBJB) liblossywav.so.1 lossywav
+	-rm -f $(OBJS) $(OBJB) lib${PROJECT}.a lib${PROJECT}.so.1 ${PROJECT} ${PROJECT}-static

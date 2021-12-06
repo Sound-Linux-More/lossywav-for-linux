@@ -1,3 +1,9 @@
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Sound-Linux-More/lossywav-for-linux)
+![GitHub Release Date](https://img.shields.io/github/release-date/Sound-Linux-More/lossywav-for-linux)
+![GitHub repo size](https://img.shields.io/github/repo-size/Sound-Linux-More/lossywav-for-linux)
+![GitHub all releases](https://img.shields.io/github/downloads/Sound-Linux-More/lossywav-for-linux/total)
+![GitHub](https://img.shields.io/github/license/Sound-Linux-More/lossywav-for-linux)
+
 # Note
 This is the `README` of **lossyWAV for POSIX**.
 The README of lossyWAV (proper) was moved to  `README.lossyWAV.md`.
