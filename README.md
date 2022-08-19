@@ -5,8 +5,9 @@
 ![GitHub](https://img.shields.io/github/license/Sound-Linux-More/lossywav-for-linux)
 
 # Note
-This is the `README` of **lossyWAV for POSIX**.
-The README of lossyWAV (proper) was moved to  `README.lossyWAV.md`.
+![label](lossyWAV.png)  
+This is the `README` of **lossyWAV for POSIX**.  
+The README of lossyWAV (proper) was moved to [README.lossyWAV.md](README.lossyWAV.md).
 
 # lossyWAV for POSIX
 

@@ -1,61 +1,67 @@
 PROJECT = lossywav
+TARGET = $(PROJECT)
+TLIBA = lib${PROJECT}.a
+TLIBSO = lib${PROJECT}.so.1
 COMMON_CXXFLAGS = -std=c++11 -O2 -pipe
 DEFINES = -DHAVE_STD_CHRONO_STEADY_CLOCK_NOW -DHAVE_SETPRIORITY -DHAVE_STAT -DHAVE_CHMOD -DHAVE_NANOSLEEP
 AR = ar
 LDFLAGS = -s
 
 CXXFLAGS = ${COMMON_CXXFLAGS} ${DEFINES}
-ifeq ($(shell uname --machine), x86_64)
-    CXXFLAGS += -fPIC
-endif
-ifeq ($(shell uname --machine), aarch64)
+ifneq ($(shell uname -m), i386)
     CXXFLAGS += -fPIC
 endif
 
-HEADERS = version.h \
-          units/fftw_interface.h \
-          units/nComplex.h \
-          units/nCore.h \
-          units/nFFT.h \
-          units/nFillFFT.h \
-          units/nInitialise.h \
-          units/nMaths.h \
-          units/nOutput.h \
-          units/nParameter.h \
-          units/nProcess.h \
-          units/nRemoveBits.h \
-          units/nSGNS.h \
-          units/nShiftBlocks.h \
-          units/nSpreading.h \
-          units/nSupport.h \
-          units/nWav.h
+HEADERS = src/units/fftw_interface.h \
+          src/units/nComplex.h \
+          src/units/nCore.h \
+          src/units/nFFT.h \
+          src/units/nFillFFT.h \
+          src/units/nInitialise.h \
+          src/units/nMaths.h \
+          src/units/nOutput.h \
+          src/units/nParameter.h \
+          src/units/nProcess.h \
+          src/units/nRemoveBits.h \
+          src/units/nSGNS.h \
+          src/units/nShiftBlocks.h \
+          src/units/nSpreading.h \
+          src/units/nSupport.h \
+          src/units/nWav.h \
+          src/version.h
 
-OBJS = units/fftw_interface.o \
-       units/nCore.o \
-       units/nFFT.o \
-       units/nFillFFT.o \
-       units/nInitialise.o \
-       units/nOutput.o \
-       units/nParameter.o \
-       units/nProcess.o \
-       units/nRemoveBits.o \
-       units/nSGNS.o \
-       units/nShiftBlocks.o \
-       units/nSpreading.o \
-       units/nWav.o
+OBJS = src/units/fftw_interface.o \
+       src/units/nCore.o \
+       src/units/nFFT.o \
+       src/units/nFillFFT.o \
+       src/units/nInitialise.o \
+       src/units/nOutput.o \
+       src/units/nParameter.o \
+       src/units/nProcess.o \
+       src/units/nRemoveBits.o \
+       src/units/nSGNS.o \
+       src/units/nShiftBlocks.o \
+       src/units/nSpreading.o \
+       src/units/nWav.o
 
-OBJB = lossyWAV.o
+OBJB = src/lossyWAV.o
 
-all: $(OBJS) $(OBJB) link
+all: $(OBJS) $(OBJB) $(TLIBA) $(TLIBSO) $(TARGET) $(TARGET)-static
 
 *.o: ${@:.o=.cpp} $(HEADERS)
-	${CXX:-g++} -c ${@:.o=.cpp} -o ${@} ${CXXFLAGS}
+	${CXX:-g++} ${CXXFLAGS} -c ${@:.o=.cpp} -o ${@}
 
-link: $(OBJS) $(OBJB)
-	${AR} crs lib${PROJECT}.a ${OBJS}
-	${CXX} -shared ${OBJS} -Wl,-soname,lib${PROJECT}.so.1 -o lib${PROJECT}.so.1 ${LDFLAGS}
-	${CXX} ${OBJB} lib${PROJECT}.so.1 -o ${PROJECT} ${LDFLAGS}
-	${CXX} ${OBJB} lib${PROJECT}.a -o ${PROJECT}-static ${LDFLAGS}
+$(TLIBA): $(OBJS)
+	${AR} crs $@ $^
+
+$(TLIBSO): $(OBJS)
+	${CXX} -shared -Wl,-soname,$@ $^ -o $@ ${LDFLAGS}
+
+$(TARGET): $(OBJB) $(TLIBSO)
+	${CXX} $^ -o $@ ${LDFLAGS}
+
+$(TARGET)-static: $(OBJB) $(TLIBA)
+	${CXX} $^ -o $@ ${LDFLAGS}
 
 clean:
-	-rm -f $(OBJS) $(OBJB) lib${PROJECT}.a lib${PROJECT}.so.1 ${PROJECT} ${PROJECT}-static
+	-rm -f $(OBJS) $(OBJB) $(TLIBA) $(TLIBSO) $(TARGET) $(TARGET)-static
